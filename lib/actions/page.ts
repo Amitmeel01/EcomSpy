@@ -11,13 +11,11 @@ import productModel from "../models/productModel";
 import connectDb from "../databse/mongoose";
 
 
-let isConnected = false;
 
 const loadDb = async () => {
-  if (!isConnected) {
+ 
     await connectDb();
-    isConnected = true;
-  }
+   
 };
 
 
