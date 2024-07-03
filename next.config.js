@@ -7,6 +7,14 @@ const nextConfig = {
       'images-na.ssl-images-amazon.com', // Add this hostname
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://api.example.com/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

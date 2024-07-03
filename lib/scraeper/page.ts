@@ -45,7 +45,7 @@ export async function scrapeAmazonProduct(url: string) {
       console.log("Fetching URL:", url);
 
       const response = await axios.get(url, {
-        timeout: 40000,
+        timeout: 5000,
         ...options,
         headers: {
           'User-Agent': getRandomUserAgent(),
@@ -92,10 +92,10 @@ export async function scrapeAmazonProduct(url: string) {
       $("#imgBlkFront").attr("data-a-dynamic-image") ||
       $("#landingImage").attr("data-a-dynamic-image") ||
       "{}";
-    const imageUrls = Object.keys(JSON.parse(images));
-    const currency = extractCurrency($(".a-price-symbol"));
-    const discountRate = $(".savingsPercentage").text().replace(/[-%]/g, "");
-    const description = extraDescription($);
+    const imageUrls =await Object.keys(JSON.parse(images));
+    const currency =await extractCurrency($(".a-price-symbol"));
+    const discountRate =await $(".savingsPercentage").text().replace(/[-%]/g, "");
+    const description =await extraDescription($);
     const reviews = await extractReviews(url);
 
     const data = {

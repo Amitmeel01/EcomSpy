@@ -10,11 +10,26 @@ import { generateEmailBody, sendEmail } from "../nodemailer";
 import productModel from "../models/productModel";
 import connectDb from "../databse/mongoose";
 
+
+let isConnected = false;
+
+const loadDb = async () => {
+  if (!isConnected) {
+    await connectDb();
+    isConnected = true;
+  }
+};
+
+
+loadDb();
+
+
+
 export async function scrapeAndStoreProduct(productUrl: string) {
   if(!productUrl) return;
 
   try {
-    await connectDb()
+    await loadDb()
 
     const scrapedProduct = await scrapeAmazonProduct(productUrl);
 
@@ -45,7 +60,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
       { upsert: true, new: true }
     );
 
-    revalidatePath(`/products/${newProduct._id}`);
+    // revalidatePath(`/products/${newProduct._id}`);
   } catch (error: any) {
     throw new Error(`Failed to create/update product: ${error.message}`)
   }
@@ -53,7 +68,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
 
 export async function getProductById(productId: string) {
   try {
-    await connectDb()
+    await loadDb()
 
     const product = await productModel.findOne({ _id: productId });
 
@@ -67,7 +82,7 @@ export async function getProductById(productId: string) {
 
 export async function getAllProducts() {
   try {
-    await connectDb()
+    await loadDb()
 
     const products = await productModel.find();
 
@@ -79,7 +94,7 @@ export async function getAllProducts() {
 
 export async function getSimilarProducts(productId: string) {
   try {
-    await connectDb()
+    await loadDb()
 
     const currentProduct = await productModel.findById(productId);
 
@@ -96,7 +111,7 @@ export async function getSimilarProducts(productId: string) {
 }
 
 export async function addUserEmailToProduct(productId: string, userEmail: string) {
-  await connectDb();
+  await loadDb();
   try {
     const product = await productModel.findById(productId);
 
