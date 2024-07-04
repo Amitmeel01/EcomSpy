@@ -41,7 +41,7 @@ function SearchBar() {
 
       //scrape the prouct
 
-      const product = await scrapeAndStoreProduct(searchlink);
+       await scrapeAndStoreProduct(searchlink);
     } catch (err) {
       console.log(err);
     } finally {
@@ -52,6 +52,10 @@ function SearchBar() {
   };
 
   return (
+    <>
+    {loading && <div className='flex justify-center relative lg:-top-[470px] lg:ml-[400px] max-md:-top-[350px] sm:-top-[370px] max-sm:-top-[420px] z-999'>
+  <div className="loader"></div>
+</div> }
     <form className="flex flex-wrap gap-4 mt-12" onSubmit={handlesubmit}>
       <input
         type="text"
@@ -61,6 +65,7 @@ function SearchBar() {
         onChange={handlechange}
       />
 
+
       <button
         type="submit"
         className="searchbar-btn"
@@ -69,6 +74,11 @@ function SearchBar() {
         {loading ? "Searching" : "Search"}
       </button>
     </form>
+
+
+
+
+</>
   );
 }
 
