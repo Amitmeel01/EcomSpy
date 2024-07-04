@@ -209,7 +209,7 @@ export async function scrapeAmazonProduct(url: string) {
       console.log("Fetching URL:", url);
 
       const response = await axios.get(url, {
-        timeout: 25000,
+        timeout: 45000,
         proxy: proxy,
         headers: {
           'User-Agent': getRandomUserAgent(),
