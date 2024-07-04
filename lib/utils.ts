@@ -13,20 +13,21 @@ const Notification = {
 
 const THRESHOLD_PERCENTAGE = 40;
 
-export function extractPrice(...elements:any) {
+export function extractPrice(...elements: any[]): number | null {
     for (const element of elements) {
         const priceText = element.text().trim();
         if (priceText) {
             // Extract only the numeric part including commas and dots
-            const match = priceText.match(/[\d,]+(\.\d{1,2})?/);
-            if (match) {
-                // Remove commas for numeric conversion
-                return match[0].replace(/,/g, '');
+            const price = parseFloat(priceText.replace(/[^0-9.-]+/g, ""));
+      if (!isNaN(price)) {
+        return price;
+      
             }
         }
     }
-    return '';
+    return null; // Return null if no valid price is found
 }
+
 
 export function extractCurrency(element: any) {
     const currencyText = element.text().trim().slice(0, 1);
