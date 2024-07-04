@@ -186,6 +186,8 @@ const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() * USER_AGE
 export async function scrapeAmazonProduct(url: string) {
   if (!url) return;
 
+  
+
   const fetchPage = async (retryCount = 3) => {
     const username = process.env.SMTP_USER || '';
     const password = process.env.SMTP_PASS || '';
