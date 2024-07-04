@@ -180,8 +180,8 @@ const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() * USER_AGE
 
 // Function to scrape Amazon product data
 
-export const runtime = 'edge'
-export const maxDuration = 300
+// export const runtime = 'edge'
+// export const maxDuration = 300
 
 export async function scrapeAmazonProduct(url: string) {
   if (!url) return;
