@@ -1,25 +1,23 @@
 "use server"
 
 import { revalidatePath } from "next/cache";
-
-
 import { scrapeAmazonProduct } from "../scraeper/page";
 import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils";
 import { User } from "@/types/page";
 import { generateEmailBody, sendEmail } from "../nodemailer";
 import productModel from "../models/productModel";
-import connectDb from "../databse/mongoose";
 
 
 
-const loadDb = async () => {
+
+// const loadDb = async () => {
  
-    await connectDb();
+//     await con
    
-};
+// };
 
 
-loadDb();
+// loadDb();
 
 
 
@@ -27,7 +25,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
   if(!productUrl) return;
 
   try {
-    await loadDb()
+    // await connect
 
     const scrapedProduct = await scrapeAmazonProduct(productUrl);
 
@@ -66,7 +64,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
 
 export async function getProductById(productId: string) {
   try {
-    await loadDb()
+    // await loadDb()
 
     const product = await productModel.findOne({ _id: productId });
 
@@ -80,7 +78,7 @@ export async function getProductById(productId: string) {
 
 export async function getAllProducts() {
   try {
-    await loadDb()
+    // await loadDb()
 
     const products = await productModel.find();
 
@@ -92,7 +90,7 @@ export async function getAllProducts() {
 
 export async function getSimilarProducts(productId: string) {
   try {
-    await loadDb()
+    // await loadDb()
 
     const currentProduct = await productModel.findById(productId);
 
@@ -109,7 +107,7 @@ export async function getSimilarProducts(productId: string) {
 }
 
 export async function addUserEmailToProduct(productId: string, userEmail: string) {
-  await loadDb();
+  // await loadDb();
   try {
     const product = await productModel.findById(productId);
 
