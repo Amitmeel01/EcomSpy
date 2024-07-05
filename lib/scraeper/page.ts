@@ -1,36 +1,51 @@
-
-// "use server";
 import axios from "axios";
 import * as cheerio from "cheerio";
-import {
-  extraDescription,
-  extractCurrency,
-  extractPrice,
-  extractReviews,
-} from "../utils";
+import { extractPrice, extractCurrency, extraDescription, extractReviews } from "../utils";
 
 const USER_AGENTS = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36', 
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36', 
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15', 
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
   // Add more user agents as needed
 ];
 
-const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() *10000)];
+const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 
-// Function to scrape Amazon product data
+interface Review {
+  id: string;
+  title: string;
+  rating: number;
+  date: string;
+  body: string;
+  reviewer: string;
+}
 
-// export const runtime = 'edge'
-// export const maxDuration = 300
+interface ProductData {
+  url: string;
+  currency: string;
+  image: string;
+  title: string;
+  currentPrice: number;
+  originalPrice: number;
+  priceHistory: { date: string; price: number }[];
+  discountRate: number;
+  category: string;
+  reviewsCount: number;
+  stars: number;
+  isOutOfStock: boolean;
+  description: string;
+  lowestPrice: number;
+  highestPrice: number;
+  averagePrice: number;
+  reviews: Review[];
+}
 
-export async function scrapeAmazonProduct(url: string) {
+export async function scrapeAmazonProduct(url: string): Promise<ProductData | undefined> {
   if (!url) return;
 
-  
-
-  const fetchPage = async (retryCount = 3) => {
-    const username = String(process.env.SMTP_USER);
-    const password = String(process.env.SMTP_PASS);
+  const fetchPage = async (retryCount = 3): Promise<string> => {
+    const username = process.env.SMTP_USER;
+    const password = process.env.SMTP_PASS;
 
     if (!username || !password) {
       throw new Error('SMTP_USER or SMTP_PASS is not set');
@@ -87,13 +102,9 @@ export async function scrapeAmazonProduct(url: string) {
 
   try {
     const pageData = await fetchPage();
-    console.log("response data get succesfully")
     const $ = cheerio.load(pageData);
 
     const title = $("#productTitle").text().trim();
-
-    console.log("title",title);
-
     const currentPrice = extractPrice(
       $(".priceToPay span.a-price-whole").first(),
       $("#priceblock_ourprice"),
@@ -102,9 +113,6 @@ export async function scrapeAmazonProduct(url: string) {
       $("#priceblock_dealprice"),
       $("a.size.base.a-color-price")
     );
-
-    console.log("current Price",title);
-
     const originalPrice = extractPrice(
       $("#priceblock_ourprice"),
       $("span.a-price.a-text-price span.a-offscreen"),
@@ -112,38 +120,22 @@ export async function scrapeAmazonProduct(url: string) {
       $("#priceblock_dealprice"),
       $("a.size.base.a-color-price")
     );
-
-    console.log("current Price",originalPrice);
-
-    const outOfStock =
-      $("#availability span").text().trim().toLowerCase() ===
-      "currently unavailable";
-    const images =
-      $("#imgBlkFront").attr("data-a-dynamic-image") ||
-      $("#landingImage").attr("data-a-dynamic-image") ||
-      "{}";
+    const outOfStock = $("#availability span").text().trim().toLowerCase() === "currently unavailable";
+    const images = $("#imgBlkFront").attr("data-a-dynamic-image") || $("#landingImage").attr("data-a-dynamic-image") || "{}";
     const imageUrls = Object.keys(JSON.parse(images));
-
-     console.log("image url",imageUrls)
-
     const currency = extractCurrency($(".a-price-symbol"));
     const discountRate = $(".savingsPercentage").text().replace(/[-%]/g, "");
     const description = extraDescription($);
-
-console.log("description",description)
-
     const reviews = await extractReviews(url);
 
-    console.log("reviews",reviews);
-
-    const data = {
+    const data: ProductData = {
       url,
       currency: currency || "$",
       image: imageUrls[0],
       title: title,
       currentPrice: Number(currentPrice) || Number(originalPrice),
       originalPrice: Number(originalPrice) || Number(currentPrice),
-      priceHistory: [],
+      priceHistory: [], // Initialize as an empty array with the correct type
       discountRate: Number(discountRate),
       category: "category", // Replace with actual category
       reviewsCount: 100, // Replace with actual count
@@ -153,7 +145,7 @@ console.log("description",description)
       lowestPrice: Number(currentPrice) || Number(originalPrice),
       highestPrice: Number(originalPrice) || Number(currentPrice),
       averagePrice: Number(currentPrice) || Number(originalPrice),
-      reviews: reviews.map((review: any) => ({
+      reviews: reviews.map((review: Review) => ({
         id: review.id,
         title: review.title.replace(/\d+/g, "").trim(),
         rating: review.rating,
@@ -174,6 +166,6 @@ console.log("description",description)
       console.error("Headers:", error.response.headers);
       console.error("Data:", error.response.data);
     }
-    throw error; // Re-throw the error to handle it further up the call stack
+    throw error;
   }
 }

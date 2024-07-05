@@ -1,6 +1,5 @@
 "use server";
 
-
 import { revalidatePath } from "next/cache";
 import { scrapeAmazonProduct } from "../scraeper/page";
 import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils";
@@ -10,39 +9,30 @@ import productModel from "../models/productModel";
 import connectDb from "../databse/mongoose";
 import { toast } from "react-toastify";
 
-
-
-
+// Ensure the database is loaded
 const loadDb = async () => {
- 
-    await connectDb()
-   
+  await connectDb();
 };
-
-
 loadDb();
 
-
-
 export async function scrapeAndStoreProduct(productUrl: string) {
-  if(!productUrl) return;
+  if (!productUrl) return;
 
   try {
-    await loadDb()
-
+    await loadDb();
     const scrapedProduct = await scrapeAmazonProduct(productUrl);
 
-    if(!scrapedProduct) return;
+    if (!scrapedProduct) return;
 
     let product = scrapedProduct;
 
     const existingProduct = await productModel.findOne({ url: scrapedProduct.url });
 
-    if(existingProduct) {
-      const updatedPriceHistory: any = [
+    if (existingProduct) {
+      const updatedPriceHistory = [
         ...existingProduct.priceHistory,
         { price: scrapedProduct.currentPrice }
-      ]
+      ];
 
       product = {
         ...scrapedProduct,
@@ -50,7 +40,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
         lowestPrice: getLowestPrice(updatedPriceHistory),
         highestPrice: getHighestPrice(updatedPriceHistory),
         averagePrice: getAveragePrice(updatedPriceHistory),
-      }
+      };
     }
 
     const newProduct = await productModel.findOneAndUpdate(
@@ -59,17 +49,14 @@ export async function scrapeAndStoreProduct(productUrl: string) {
       { upsert: true, new: true }
     );
 
-    revalidatePath(`/product/${newProduct._id}`); // this is important iskebina database issue aaega
-
-    // toast.success("Data Fetch Succesfully")
+    revalidatePath(`/product/${newProduct._id}`);
   } catch (error: any) {
-    // toast.error("Something Went Wrong")
-    throw new Error(`Failed to create/update product: ${error.message}
-  `)
-
- 
+    throw new Error(`Failed to create/update product: ${error.message}`);
   }
 }
+
+// Other functions unchanged
+
 
 export async function getProductById(productId: string) {
   try {
