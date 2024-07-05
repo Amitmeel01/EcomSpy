@@ -34,6 +34,9 @@ export function extraDescription($: any) {
   const selectors = [
     ".a-unordered-list .a-list-item",
     ".a-expander-content p",
+    '#productDescription > p',
+    '#feature-bullets ul li',
+    '.a-section.a-spacing-medium',
   ];
 
   for (const selector of selectors) {
@@ -67,17 +70,17 @@ export async function extractReviews(initialUrl: string) {
 
       $('.a-section.review.aok-relative').each((index, element) => {
         if (reviews.length < 15) {
-          const ratingText = $(element).find('[data-hook="review-star-rating"]').text().trim();
+          const ratingText = $(element).find('.review-rating').text().trim();
           const ratingMatch = ratingText.match(/\d+(\.\d+)?/);
           const rating = ratingMatch ? parseFloat(ratingMatch[0]) : null;
 
           const review: any = {
-            id: $(element).attr('id'),
-            title: $(element).find('[data-hook="review-title"]').text().trim().replace(/\d+/g, ''),
-            rating: rating,
-            date: $(element).find('[data-hook="review-date"]').text().trim(),
-            body: $(element).find('[data-hook="review-body"]').text().trim().replace(/\s+Read more$/, ''),
-            reviewer: $(element).find('[data-hook="genome-widget"]').text().trim(),
+              id: $(element).attr('id'),
+              title: $(element).find('.review-title').text().trim().replace(/\d+/g, ''),
+              rating: rating,
+              date: $(element).find('.review-date').text().trim(),
+              body: $(element).find('.review-body').text().trim(),
+              reviewer: $(element).find('.reviewer').text().trim(),
           };
           reviews.push(review);
         }

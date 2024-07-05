@@ -3,7 +3,7 @@ import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import { getAllProducts } from "@/lib/actions/page";
 import Image from "next/image";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Home = async () => {

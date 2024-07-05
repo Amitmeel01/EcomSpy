@@ -66,7 +66,7 @@ const ItemSearch = () => {
 
   return (
     <>
-      <ToastContainer />
+      
       <button
         type="button"
         className='ml-[330px] mt-1  lg:ml-[980px] sm:ml-[370px] max-sm:ml-[180px] max-md:ml-[0px] md:ml-[0px]'
