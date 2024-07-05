@@ -1,6 +1,7 @@
 "use client";
 import { scrapeAndStoreProduct } from "@/lib/actions/page";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 function SearchBar() {
   const [searchlink, setSearchlink] = useState("");
@@ -38,12 +39,14 @@ function SearchBar() {
 
     try {
       setLoading(true);
-
+ 
       //scrape the prouct
 
        await scrapeAndStoreProduct(searchlink);
-    } catch (err) {
+       toast.success("item fetch succesfully");
+    } catch (err:any) {
       console.log(err);
+      toast.error(err.message)
     } finally {
       setLoading(false);
     }

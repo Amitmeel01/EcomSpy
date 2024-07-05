@@ -1,6 +1,5 @@
 
-
-"use server";
+// "use server";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import {
@@ -88,9 +87,13 @@ export async function scrapeAmazonProduct(url: string) {
 
   try {
     const pageData = await fetchPage();
+    console.log("response data get succesfully")
     const $ = cheerio.load(pageData);
 
     const title = $("#productTitle").text().trim();
+
+    console.log("title",title);
+
     const currentPrice = extractPrice(
       $(".priceToPay span.a-price-whole").first(),
       $("#priceblock_ourprice"),
@@ -100,6 +103,8 @@ export async function scrapeAmazonProduct(url: string) {
       $("a.size.base.a-color-price")
     );
 
+    console.log("current Price",title);
+
     const originalPrice = extractPrice(
       $("#priceblock_ourprice"),
       $("span.a-price.a-text-price span.a-offscreen"),
@@ -107,6 +112,9 @@ export async function scrapeAmazonProduct(url: string) {
       $("#priceblock_dealprice"),
       $("a.size.base.a-color-price")
     );
+
+    console.log("current Price",originalPrice);
+
     const outOfStock =
       $("#availability span").text().trim().toLowerCase() ===
       "currently unavailable";
@@ -115,10 +123,18 @@ export async function scrapeAmazonProduct(url: string) {
       $("#landingImage").attr("data-a-dynamic-image") ||
       "{}";
     const imageUrls = Object.keys(JSON.parse(images));
+
+     console.log("image url",imageUrls)
+
     const currency = extractCurrency($(".a-price-symbol"));
     const discountRate = $(".savingsPercentage").text().replace(/[-%]/g, "");
     const description = extraDescription($);
+
+console.log("description",description)
+
     const reviews = await extractReviews(url);
+
+    console.log("reviews",reviews);
 
     const data = {
       url,

@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 
 import { revalidatePath } from "next/cache";
@@ -8,6 +8,7 @@ import { User } from "@/types/page";
 import { generateEmailBody, sendEmail } from "../nodemailer";
 import productModel from "../models/productModel";
 import connectDb from "../databse/mongoose";
+import { toast } from "react-toastify";
 
 
 
@@ -27,7 +28,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
   if(!productUrl) return;
 
   try {
-    await connectDb()
+    await loadDb()
 
     const scrapedProduct = await scrapeAmazonProduct(productUrl);
 
@@ -59,14 +60,20 @@ export async function scrapeAndStoreProduct(productUrl: string) {
     );
 
     revalidatePath(`/product/${newProduct._id}`); // this is important iskebina database issue aaega
+
+    // toast.success("Data Fetch Succesfully")
   } catch (error: any) {
-    throw new Error(`Failed to create/update product: ${error.message}`)
+    // toast.error("Something Went Wrong")
+    throw new Error(`Failed to create/update product: ${error.message}
+  `)
+
+ 
   }
 }
 
 export async function getProductById(productId: string) {
   try {
-    await connectDb()
+    await loadDb()
 
     const product = await productModel.findOne({ _id: productId });
 
@@ -80,7 +87,7 @@ export async function getProductById(productId: string) {
 
 export async function getAllProducts() {
   try {
-    await connectDb()
+    await loadDb()
 
     const products = await productModel.find();
 
